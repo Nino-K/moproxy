@@ -25,21 +25,21 @@ jobs:
           artifacts: target/debian/*.deb,target/release/*.bin.xz
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
-  build-windows:
-    name: Build for Windows
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all-features
-      - run: xz -kf target/release/moproxy.exe > "moproxy_${GITHUB_REF#*/v}_windows_amd64.exe.xz"
-      - uses: ncipollo/release-action@v1
-        with:
-          artifacts: target/release/*.exe.xz
-          token: ${{ secrets.GITHUB_TOKEN }}
-          allowUpdates: true
+ # build-windows:
+ #   name: Build for Windows
+ #   runs-on: windows-latest
+ #   steps:
+ #     - uses: actions/checkout@v2
+ #     - uses: actions-rs/cargo@v1
+ #       with:
+ #         command: build
+ #         args: --release --all-features
+ #     - run: xz -kf target/release/moproxy.exe > "moproxy_${GITHUB_REF#*/v}_windows_amd64.exe.xz"
+ #     - uses: ncipollo/release-action@v1
+ #       with:
+ #         artifacts: target/release/*.exe.xz
+ #         token: ${{ secrets.GITHUB_TOKEN }}
+ #         allowUpdates: true
   build-linux-cross:
     name: Cross-build for various on Linux
     runs-on: ubuntu-latest
@@ -50,7 +50,12 @@ jobs:
           use-cross: true
           command: build
           args: --target x86_64-unknown-linux-musl --release
-      - run: tar -czvf "_${GITHUB_REF#*/v}_linux_x86_64_musl.bin.tar.gz" target/x86_64-unknown-linux-musl/release/moproxy
+      - run: tar -czvf "target/x86_64-unknown-linux-musl/release/moproxy_${GITHUB_REF#*/v}_linux_x86_64_musl.bin.tar.gz" target/x86_64-unknown-linux-musl/release/moproxy
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "target/**/*.bin.tar.gz"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
       - run: xz -kfS "_${GITHUB_REF#*/v}_linux_x86_64_musl.bin.xz" target/x86_64-unknown-linux-musl/release/moproxy
      # - uses: actions-rs/cargo@v1
      #   with:
@@ -73,10 +78,5 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "target/**/*.bin.xz"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          allowUpdates: true
-      - uses: ncipollo/release-action@v1
-        with:
-          artifacts: "target/**/*.bin.tar.gz"
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
